@@ -317,7 +317,7 @@ def installation_main(vessels, equipments, ports, phase_order, schedule_OLC,
             log_phase.op_ve_init = log_phase.op_ve
                         
             msg = ("Checking installation requirements for phase: {}.").format(
-                log_phase.description)
+                   log_phase.description)
 
             module_logger.info(msg)
 
