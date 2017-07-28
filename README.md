@@ -7,7 +7,7 @@
 
 ## Authors
 
-[Paulo Chainho](mailto:paulo@waivec.org),
-[Boris Teillant](mailto:boris.teillant@waivec.org)
-[Adam Collin](mailto:adam.collin@ed.ac.uk)
-[Mathew Topper](mailto:dataonlygreater@gmail.com)
+- [Paulo Chainho](mailto:paulo@waivec.org)
+- [Boris Teillant](mailto:boris.teillant@waivec.org)
+- [Adam Collin](mailto:adam.collin@ed.ac.uk)
+- [Mathew Topper](mailto:dataonlygreater@gmail.com)
