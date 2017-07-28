@@ -1,20 +1,17 @@
 """
-@author: WavEC Offshore Renewables
-email: boris.teillant@wavec.org; paulo@wavec.org; pedro.vicente@wavec.org
+@author: WavEC Offshore Renewables, Adam Collin, Mathew Topper
+email: boris.teillant@wavec.org;
+       paulo@wavec.org;
+       pedro.vicente@wavec.org;
+       dataonlygreater@gmail.com
 
 """
 
-from os import path
-import sys
-sys.path.append('..')
-from datetime import timedelta
-import warnings as wn
-import numpy as np
 import copy
-import csv
-
 import logging
-module_logger = logging.getLogger(__name__)
+from datetime import timedelta
+
+import numpy as np
 
 from dtocean_logistics.phases.operations import logOp_init
 from dtocean_logistics.phases.install import logPhase_install_init
@@ -28,11 +25,14 @@ from dtocean_logistics.performance.economic.eco import cost
 from dtocean_logistics.performance.optim_sol import opt_sol
 from dtocean_logistics.outputs.output_processing import out_process
 from dtocean_logistics.outputs.output_plotting2 import out_ploting
-from dtocean_logistics.outputs.output_plotting2 import out_ploting_installation
 from dtocean_logistics.load.safe_factors import safety_factors
 from dtocean_logistics.performance.economic.cost_year import cost_p_year
 
 from dtocean_logistics.load.input_checkin import input_check
+
+# Set up logging
+module_logger = logging.getLogger(__name__)
+
 
 def installation_main(vessels, equipments, ports, phase_order, schedule_OLC,
                       penet_rates, laying_rates, other_rates, port_sf,
