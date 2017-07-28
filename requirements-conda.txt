@@ -1,7 +1,7 @@
 # REQUIREMENTS FOR CONDA INSTALLATION
 
 # INSTALLATION REQUIRED DEPENDENCIES
-dtocean_logistics >=1.0
+dtocean-logistics >=1.0
 numpy
 pandas
 polite >=0.9
