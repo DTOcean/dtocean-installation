@@ -279,88 +279,89 @@ def installation_main(vessels, equipments, ports, phase_order, schedule_OLC,
     Installation_total_sea_op_time = 0
     Installation_total_sea_trans_time = 0
 
-    
-
     if plan_only: return
 
     #  loop over the phases of the installation plan
     install['findSolution'] = 'SolutionFound'
     
-    logPhase_install = logPhase_install_init(
-                logOp, vessels, equipments, device, sub_device, landfall,
-                layout, collection_point, dynamic_cable, static_cable,
-                cable_route, connectors, external_protection, topology,
-                line, foundation, penet_rates, site)
-    skipped = []
+    logPhase_install = logPhase_install_init(logOp,
+                                             vessels,
+                                             equipments,
+                                             device,
+                                             sub_device,
+                                             landfall,
+                                             layout,
+                                             collection_point,
+                                             dynamic_cable,
+                                             static_cable,
+                                             cable_route,
+                                             connectors,
+                                             external_protection,
+                                             topology,
+                                             line,
+                                             foundation,
+                                             penet_rates,
+                                             site)
     
+    skipped = []
     something_installed = False
 
     for x in install['plan']:
-
+        
         for y in range(len(install['plan'][x])):
-
-            # Reload of databases
-            del vessels, equipments
-
-            vessels = copy.deepcopy(vessels_ini)
-            equipments = copy.deepcopy(equipments_ini)
 
             # extract LogPhase ID to be evaluated from the installation plan
             log_phase_id = install['plan'][x][y]
 
             log_phase = logPhase_install[log_phase_id]
             log_phase.op_ve_init = log_phase.op_ve
-            
+                        
             msg = ("Checking installation requirements for phase: {}.").format(
                 log_phase.description)
 
             module_logger.info(msg)
 
             # characterize the logistic requirements
-            install['requirement'] = glob_feas(log_phase, log_phase_id, site,
-                                               device, sub_device, layout,
-                                               collection_point, dynamic_cable,
-                                               static_cable, cable_route,
-                                               connectors, external_protection,
-                                               topology, line, foundation)
-
-            # selection of the maritime infrastructure
+            install['requirement'] = glob_feas(log_phase,
+                                               log_phase_id,
+                                               site,
+                                               device,
+                                               sub_device,
+                                               layout,
+                                               collection_point,
+                                               dynamic_cable,
+                                               static_cable,
+                                               cable_route,
+                                               connectors,
+                                               external_protection,
+                                               topology,
+                                               line,
+                                               foundation)
+            
+            # Selection of the feasible equipment
             install['eq_select'], log_phase = select_e(install, log_phase)
+                        
+            # Selection of the feasible vessels
             install['ve_select'], log_phase = select_v(install, log_phase)
-
+                        
             # matching requirements for combinations of port/vessel/equipment
             install['combi_select'], log_phase, MATCH_FLAG = compatibility_ve(
                 install, log_phase,
                 install_port['Selected base port for installation'])
 
             #TODO: Tidy this summation - check the data structure
-            Num_sols=0
+            Num_sols = 0
 
-            for ind_strg in range(len(install['combi_select'])):
-
-                Num_sols = \
-                    Num_sols + len(install['combi_select'][ind_strg])
+            for strg in install['combi_select']:
+                Num_sols += len(strg)
 
             msg = ("{} possible solutions found.").format(Num_sols)
             module_logger.info(msg)
 
             if MATCH_FLAG == 'NoSolutions':
-                
-                ves_req_deck_area = \
-                    round(install['requirement'][5]['deck area'], 2)
-                ves_req_deck_cargo = \
-                    round(install['requirement'][5]['deck cargo'], 2)
-                ves_req_deck_load = \
-                    round(install['requirement'][5]['deck loading'], 2)
 
-                msg = ("Cannot complete installation phase: {}. No solution "
-                       "found in vessel database. Vessel deck requirements "
-                       "calculated as: "
-                       "area {} m^2, cargo {} T, loading {} T/m^2").format(
-                       log_phase.description,
-                       ves_req_deck_area,
-                       ves_req_deck_cargo,
-                       ves_req_deck_load)
+                msg = ("Cannot complete installation phase: {}. See logs for "
+                       "further details").format(log_phase.description)
 
                 if not skip_phase: raise RuntimeError(msg)
                     
@@ -370,177 +371,194 @@ def installation_main(vessels, equipments, ports, phase_order, schedule_OLC,
                     'NoSolutionsFound' + ' in ' + log_phase.description)
                     
                 skipped.append(log_phase.description)
+                
+                continue
 
-            else:
+            # schedule assessment of the different operation sequence
+            (install['end_dt'],
+             log_phase, 
+             SCHEDULE_FLAG) = sched(x,
+                                    y,
+                                    install,
+                                    log_phase,
+                                    log_phase_id,
+                                    site,
+                                    metocean,
+                                    device,
+                                    sub_device,
+                                    entry_point,
+                                    layout,
+                                    collection_point,
+                                    dynamic_cable,
+                                    static_cable,
+                                    cable_route,
+                                    connectors,
+                                    external_protection,
+                                    topology,
+                                    line,
+                                    foundation,
+                                    penet_rates,
+                                    laying_rates,
+                                    other_rates)
 
-                # schedule assessment of the different operation sequence
-                (install['schedule'],
-                 install['end_dt'],
-                 log_phase, 
-                 SCHEDULE_FLAG) = sched(x, y, install, log_phase, log_phase_id,
-                                        site, metocean, device, sub_device,
-                                        entry_point, layout, collection_point,
-                                        dynamic_cable, static_cable,
-                                        cable_route, connectors,
-                                        external_protection, topology, line,
-                                        foundation, penet_rates, laying_rates,
-                                        other_rates)
+            if SCHEDULE_FLAG == 'NoWWindows':
+                
+                msg = ("Cannot complete installation phase {}. No suitable"
+                       " weather window found.").format(
+                       log_phase.description)
+                
+                if not skip_phase: raise RuntimeError(msg)
 
-                if SCHEDULE_FLAG == 'NoWWindows':
+                module_logger.warning(msg)
 
-                    msg = ("Cannot complete installation phase {}. No suitable"
-                           " weather window found.").format(
-                           log_phase.description)
-                    
-                    if not skip_phase: raise RuntimeError(msg)
+                install['findSolution'] = 'NoWeatherWindowFound'
 
-                    module_logger.warning(msg)
+                skipped.append(log_phase.description)
+                
+                continue
+                
+            something_installed = True
 
-                    install['findSolution'] = 'NoWeatherWindowFound'
+            # cost assessment of the different operation sequence
+            install['COST'], log_phase = \
+                cost(install, log_phase, log_phase_id, other_rates)
 
-                    skipped.append(log_phase.description)                    
-                    
-                else:
+            # assessment of the solution with minimum cost
+            install['optimal'] = opt_sol(log_phase, log_phase_id)
+            install['findSolution'] = 'SolutionFound'
+            
+            # check for vessel fuel
+            if install['optimal']['fuel cost'] == 0:
 
-                    something_installed = True
+                module_logger.warning("Lack of information on vessel "
+                                      "fuel consumption. Fuel cost "
+                                      "not considered for this "
+                                      "installation phase.")
 
-                    # cost assessment of the different operation sequence
-                    install['COST'], log_phase = \
-                        cost(install, log_phase, log_phase_id, other_rates)
+            # check for equipment cost
+            if install['optimal']['equipment cost'] == 0:
+                
+                module_logger.warning("Lack of information on "
+                                      "equipment cost. Equipment cost "
+                                      "not considered for this "
+                                      "installation phase.")
 
-                    # assessment of the solution with minimum cost
-                    install['optimal'] = opt_sol(log_phase, log_phase_id)
-                    install['findSolution'] = 'SolutionFound'
-                    
-                    # check for vessel fuel
-                    if install['optimal']['fuel cost'] == 0:
+            msg = ("Final solution found.") # how much detail here?
+            module_logger.info(msg)
 
-                        module_logger.warning("Lack of information on vessel "
-                                              "fuel consumption. Fuel cost "
-                                              "not considered for this "
-                                              "installation phase.")
+            if PRINT_FLAG:
 
-                    # check for equipment cost
-                    if install['optimal']['equipment cost'] == 0:
-                        
-                        module_logger.warning("Lack of information on "
-                                              "equipment cost. Equipment cost "
-                                              "not considered for this "
-                                              "installation phase.")
+                print 'Final Solution Found!'
+                print '- VESSEL SPREAD: '
+                print ('Number of Journeys (port-site-port): ' +
+                        str(install['optimal']['numb of journeys']))
 
-                    msg = ("Final solution found.") # how much detail here?
-                    module_logger.info(msg)
+                for vessel in install['optimal']['vessel_equipment']:
 
-                    if PRINT_FLAG:
+                    msg = ("Vessel Type: {} | Quantity: {} | "
+                           "Database index: {}".format(
+                           vessel[0], vessel[1], vessel[2].name ))
+                    print msg 
 
-                        print 'Final Solution Found!'
-                        print '- VESSEL SPREAD: '
-                        print ('Number of Journeys (port-site-port): ' +
-                                str(install['optimal']['numb of journeys']))
+                    for equipment in vessel[3:]:
 
-                        for vessel in install['optimal']['vessel_equipment']:
+                        msg = ("\t -> Equipment Type: {} | Quantity: "
+                               "{} | Database index: {}".format(
+                               equipment[0], equipment[1],
+                               equipment[2].name))
+                        print msg
 
-                            msg = ("Vessel Type: {} | Quantity: {} | "
-                                   "Database index: {}".format(
-                                   vessel[0], vessel[1], vessel[2].name ))
-                            print msg 
+                print '- DATES: '
+                print ('Start date: ' +
+                    str(install['optimal']['start_dt']))
+                print ('Depart date: ' +
+                    str(install['optimal']['depart_dt']))
+                print ('End date: ' +
+                    str(install['optimal']['end_dt']))
 
-                            for equipment in vessel[3:]:
+                print '- COST: '
+                print ('Solution Vessel Cost [EURO]: ' +
+                    str(round(install['optimal']['vessel cost'], 2)))
+                print ('Solution Equipment Cost [EURO]: ' +
+                    str(round(install['optimal']['equipment cost'],2)))
+                print ('Solution Port Cost [EURO]: ' +
+                    str(round(install['optimal']['port cost'], 2)))
+                print ('Solution Total Cost [EURO]: ' +
+                    str(round(install['optimal']['total cost'], 2)))
 
-                                msg = ("\t -> Equipment Type: {} | Quantity: "
-                                       "{} | Database index: {}".format(
-                                       equipment[0], equipment[1],
-                                       equipment[2].name))
-                                print msg
-
-                        print '- DATES: '
-                        print ('Start date: ' +
-                            str(install['optimal']['start_dt']))
-                        print ('Depart date: ' +
-                            str(install['optimal']['depart_dt']))
-                        print ('End date: ' +
-                            str(install['optimal']['end_dt']))
-
-                        print '- COST: '
-                        print ('Solution Vessel Cost [EURO]: ' +
-                            str(round(install['optimal']['vessel cost'], 2)))
-                        print ('Solution Equipment Cost [EURO]: ' +
-                            str(round(install['optimal']['equipment cost'],2)))
-                        print ('Solution Port Cost [EURO]: ' +
-                            str(round(install['optimal']['port cost'], 2)))
-                        print ('Solution Total Cost [EURO]: ' +
-                            str(round(install['optimal']['total cost'], 2)))
-
-                        print '- TIME: '
-                        print ('Solution Schedule preparation time [h]: ' +
-                            str(round(install['optimal']\
-                                ['schedule prep time'], 2)))
-                        print ('Solution Schedule waiting time [h]: ' +
-                            str(round(sum(install['optimal']\
-                                ['schedule waiting time']), 2)))
-                        print ('Solution Schedule Sea Operation time [h]: ' +
-                            str(round(install['optimal']\
-                                ['schedule sea operation time'], 2)))
-                        print ('Solution Schedule Sea Transit time [h]: ' +
-                                str(round(install['optimal']\
+                print '- TIME: '
+                print ('Solution Schedule preparation time [h]: ' +
+                    str(round(install['optimal']\
+                        ['schedule prep time'], 2)))
+                print ('Solution Schedule waiting time [h]: ' +
+                    str(round(sum(install['optimal']\
+                        ['schedule waiting time']), 2)))
+                print ('Solution Schedule Sea Operation time [h]: ' +
+                    str(round(install['optimal']\
+                        ['schedule sea operation time'], 2)))
+                print ('Solution Schedule Sea Transit time [h]: ' +
+                        str(round(install['optimal']\
+                        ['schedule sea transit time'], 2)))
+                print ('Solution Schedule TOTAL time [h]: ' +
+                    str(round(
+                            install['optimal']['schedule prep time'] +
+                            sum(
+                                install['optimal']\
+                                ['schedule waiting time']) +
+                                install['optimal']\
+                                ['schedule sea operation time'] +
+                                install['optimal']\
                                 ['schedule sea transit time'], 2)))
-                        print ('Solution Schedule TOTAL time [h]: ' +
-                            str(round(
-                                    install['optimal']['schedule prep time'] +
-                                    sum(
-                                        install['optimal']\
-                                        ['schedule waiting time']) +
-                                        install['optimal']\
-                                        ['schedule sea operation time'] +
-                                        install['optimal']\
-                                        ['schedule sea transit time'], 2)))
 
-                        print '- LOGISTICS: '
-                        print ('Number of Journeys: ' +
-                                str(install['optimal']['numb of journeys']))
+                print '- LOGISTICS: '
+                print ('Number of Journeys: ' +
+                        str(install['optimal']['numb of journeys']))
 
-                    simul_time = {} # leave empty to pass into out_ploting
+            simul_time = {} # leave empty to pass into out_ploting
 
-                    # formatted output dictionary containing all key results
-                    # for the logistic phase that was assessed
-                    logistic, OUTPUT_extra = out_process(log_phase, install)
-                    out_ploting(install, logistic, simul_time, PLOT_FLAG,
-                                log_phase.description)
-
-                    # Installation[ log_phase.description
-                    Installation['OPERATION'][log_phase.description] = \
-                        logistic  # trocar ?!?!
-                    # Installation['OPERATION'][log_phase_id] = logistic
-                    Installation['PLANNING']['List of Operations [-]'].append(
+            # formatted output dictionary containing all key results
+            # for the logistic phase that was assessed
+            logistic, OUTPUT_extra = out_process(log_phase, install)
+            out_ploting(install,
+                        logistic,
+                        simul_time,
+                        PLOT_FLAG,
                         log_phase.description)
-                    install['plan'][x][y] = logistic
 
-                    logistic_phase_description.append(log_phase.description)
-                    mean_vess_length_ope.append(
-                        OUTPUT_extra['MEAN_VESSEL_LENGTH'])
-                    numbr_vess_ope.append(OUTPUT_extra['NUMBR_VESSEL'])
+            # Installation[ log_phase.description
+            Installation['OPERATION'][log_phase.description] = \
+                logistic  # trocar ?!?!
+            # Installation['OPERATION'][log_phase_id] = logistic
+            Installation['PLANNING']['List of Operations [-]'].append(
+                log_phase.description)
+            install['plan'][x][y] = logistic
 
-                    # COST:
-                    Installation_total_port_cost += \
-                        logistic['COST']['Port Cost [EUR]']
-                    Installation_total_vessel_cost += \
-                        logistic['COST']['Vessel Cost [EUR]']
-                    Installation_total_equip_cost += \
-                        logistic['COST']['Equipment Cost [EUR]']
-                    Installation_total_cost += \
-                        logistic['COST']['Total Cost [EUR]']
+            logistic_phase_description.append(log_phase.description)
+            mean_vess_length_ope.append(
+                OUTPUT_extra['MEAN_VESSEL_LENGTH'])
+            numbr_vess_ope.append(OUTPUT_extra['NUMBR_VESSEL'])
 
-                    # TIME:
-                    Installation_total_prep_time += \
-                        logistic['TIME']['Preparation Time [h]']
-                    Installation_total_wait_time += \
-                        sum(logistic['TIME']['Waiting Time [h]'])
-                    Installation_total_sea_trans_time += \
-                        logistic['TIME']['Sea Transit Time [h]']
-                    Installation_total_sea_op_time += \
-                        logistic['TIME']['Sea Operation Time [h]']
-                    Installation_total_time += \
-                        logistic['TIME']['Total Time [h]']
+            # COST:
+            Installation_total_port_cost += \
+                logistic['COST']['Port Cost [EUR]']
+            Installation_total_vessel_cost += \
+                logistic['COST']['Vessel Cost [EUR]']
+            Installation_total_equip_cost += \
+                logistic['COST']['Equipment Cost [EUR]']
+            Installation_total_cost += \
+                logistic['COST']['Total Cost [EUR]']
+
+            # TIME:
+            Installation_total_prep_time += \
+                logistic['TIME']['Preparation Time [h]']
+            Installation_total_wait_time += \
+                sum(logistic['TIME']['Waiting Time [h]'])
+            Installation_total_sea_trans_time += \
+                logistic['TIME']['Sea Transit Time [h]']
+            Installation_total_sea_op_time += \
+                logistic['TIME']['Sea Operation Time [h]']
+            Installation_total_time += \
+                logistic['TIME']['Total Time [h]']
 
     if something_installed:
 
