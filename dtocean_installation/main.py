@@ -237,7 +237,9 @@ def installation_main(vessels, equipments, ports, phase_order, schedule_OLC,
                                             foundation, collection_point,
                                             install_plan)
 
-    module_logger.info("Installation port selected...")
+    port_name = install_port['Selected base port for installation']['Name [-]']
+    logMsg = "'{}' selected as installation port".format(port_name)
+    module_logger.info(logMsg)
 
     # Incremental assessment of all logistic phase of the installation process
     install = {'plan': install_plan,
