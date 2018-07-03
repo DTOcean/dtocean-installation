@@ -554,7 +554,7 @@ def installation_main(vessels, equipments, ports, phase_order, schedule_OLC,
             Installation_total_prep_time += \
                 logistic['TIME']['Preparation Time [h]']
             Installation_total_wait_time += \
-                sum(logistic['TIME']['Waiting Time [h]'])
+                logistic['TIME']['Waiting Time [h]']
             Installation_total_sea_trans_time += \
                 logistic['TIME']['Sea Transit Time [h]']
             Installation_total_sea_op_time += \
