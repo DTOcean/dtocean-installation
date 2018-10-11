@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Removed carriage returns in logistic phase description in
   operations_time_OLC.xlsx template file.
 - Refactored main function.
+- Now returning the selected port name in logging.
+- Changed total waiting time calculation in response to change in logistics
+  module.
 
 
 ## [1.0.0] - 2017-01-05
