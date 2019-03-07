@@ -511,8 +511,8 @@ def installation_main(vessels, equipments, ports, phase_order, schedule_OLC,
                     str(round(install['optimal']\
                         ['schedule prep time'], 2)))
                 print ('Solution Schedule waiting time [h]: ' +
-                    str(round(sum(install['optimal']\
-                        ['schedule waiting time']), 2)))
+                    str(round(install['optimal']\
+                        ['schedule waiting time'], 2)))
                 print ('Solution Schedule Sea Operation time [h]: ' +
                     str(round(install['optimal']\
                         ['schedule sea operation time'], 2)))
@@ -521,14 +521,10 @@ def installation_main(vessels, equipments, ports, phase_order, schedule_OLC,
                         ['schedule sea transit time'], 2)))
                 print ('Solution Schedule TOTAL time [h]: ' +
                     str(round(
-                            install['optimal']['schedule prep time'] +
-                            sum(
-                                install['optimal']\
-                                ['schedule waiting time']) +
-                                install['optimal']\
-                                ['schedule sea operation time'] +
-                                install['optimal']\
-                                ['schedule sea transit time'], 2)))
+                        install['optimal']['schedule prep time'] +
+                        install['optimal']['schedule waiting time'] +
+                        install['optimal']['schedule sea operation time'] +
+                        install['optimal']['schedule sea transit time'], 2)))
 
                 print '- LOGISTICS: '
                 print ('Number of Journeys: ' +
@@ -646,6 +642,8 @@ def installation_main(vessels, equipments, ports, phase_order, schedule_OLC,
 
             for x in range(len(install['plan'])):
 
+                if x not in install['plan']: continue
+                
                 for y in range(len(install['plan'][x])):
 
                     log_id_outcome = install['plan'][x][y]
