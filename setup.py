@@ -63,25 +63,17 @@ class CleanPyc(Command):
                 yield os.path.join(root, fname)
 
 setup(name='dtocean-installation',
-      version='1.1.dev0',
+      version='2.0.0',
       description='Array installation planning module for the DTOcean tools',
-      author=('Paulo Chainho, '
-              'Boris Teillant, '
-              'Pedro Vicente, '
-              'Mathew Topper, '
-              'Adam Collin'),
-      author_email=('paulo@wavec.org, '
-                    'boris.teillant@wavec.org, '
-                    'pedro.vicente@wavec.org, '
-                    'damm_horse@yahoo.co.uk, '
-                    'acollin@staffmail.ed.ac.uk'),
+      maintainer='Mathew Topper',
+      maintainer_email='mathew.topper@dataonlygreater.com',
       license="GPLv3",
       packages=find_packages(),
         package_data={'dtocean_installation': ['config/*.yaml',
                                                'config/*.xlsx']
                     },
       install_requires=[
-          'dtocean-logistics==1.1.dev1',
+          'dtocean-logistics==2.0.0',
           'numpy',
           'pandas',
           'polite>=0.9'
