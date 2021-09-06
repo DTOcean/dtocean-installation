@@ -1,6 +1,6 @@
 [![appveyor](https://ci.appveyor.com/api/projects/status/github/DTOcean/dtocean-installation?branch=master&svg=true)](https://ci.appveyor.com/project/DTOcean/dtocean-installation)
 [![codecov](https://codecov.io/gh/DTOcean/dtocean-installation/branch/master/graph/badge.svg)](https://codecov.io/gh/DTOcean/dtocean-installation)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a573ce6a8ee64b3b897bd18c6116cfc3)](https://www.codacy.com/project/H0R5E/dtocean-installation/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=DTOcean/dtocean-installation&amp;utm_campaign=Badge_Grade_Dashboard&amp;branchId=11719312)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9e636dd332944433b30fca4a090c9a41)](https://www.codacy.com/gh/DTOcean/dtocean-installation/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=DTOcean/dtocean-installation&amp;utm_campaign=Badge_Grade)
 [![release](https://img.shields.io/github/release/DTOcean/dtocean-installation.svg)](https://github.com/DTOcean/dtocean-installation/releases/latest)
 
 # DTOcean Installation Module
@@ -16,7 +16,7 @@ See [dtocean-app](https://github.com/DTOcean/dtocean-app) or [dtocean-core](
 https://github.com/DTOcean/dtocean-app) to use this package within the DTOcean
 ecosystem.
 
-* For python 2.7 only.
+ \* For python 2.7 only.
 
 ## Installation
 
@@ -46,6 +46,13 @@ channels:
 ```
 $ conda activate _dtocean_install
 $ copy .condarc %CONDA_PREFIX%
+```
+
+OR, if you're using Powershell:
+
+```
+$ conda activate _dtocean_install
+$ copy .condarc $env:CONDA_PREFIX
 ```
 
 Install [polite](https://github.com/DTOcean/polite) and [dtocean-logistics](
@@ -141,11 +148,11 @@ Please make sure to update tests as appropriate.
 This package was initially created as part of the [EU DTOcean project](
 https://www.dtoceanplus.eu/About-DTOceanPlus/History) by:
 
- * Boris Teillant at [WavEC](https://www.wavec.org/)
- * Paulo Chainho at [WavEC](https://www.wavec.org/)
- * Pedro Vicente at [WavEC](https://www.wavec.org/)
- * Adam Collin at [the University of Edinburgh](https://www.ed.ac.uk/)
- * Mathew Topper at [TECNALIA](https://www.tecnalia.com)
+*   Boris Teillant at [WavEC](https://www.wavec.org/)
+*   Paulo Chainho at [WavEC](https://www.wavec.org/)
+*   Pedro Vicente at [WavEC](https://www.wavec.org/)
+*   Adam Collin at [the University of Edinburgh](https://www.ed.ac.uk/)
+*   Mathew Topper at [TECNALIA](https://www.tecnalia.com)
 
 It is now maintained by Mathew Topper at [Data Only Greater](
 https://www.dataonlygreater.com/).
