@@ -6,5 +6,4 @@ pinned_packages:
 channels:
   - defaults
   - free
-  - conda-forge
   - dataonlygreater
