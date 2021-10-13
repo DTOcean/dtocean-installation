@@ -98,7 +98,7 @@ setup(name='dtocean-installation',
                                                'config/*.xlsx']
                     },
       install_requires=[
-          'dtocean-logistics>=2.0.0',
+          'dtocean-logistics>=3,<4',
           'numpy',
           'pandas',
           'polite>=0.9'
