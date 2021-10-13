@@ -28,7 +28,7 @@ Distribution](https://www.anaconda.com/distribution/) (Python 2.7)
 To install:
 
 ```
-$ conda install -c defaults -c conda-forge -c dataonlygreater dtocean-installation
+$ conda install -c defaults -c free -c conda-forge -c dataonlygreater dtocean-installation
 ```
 
 ### Source Code

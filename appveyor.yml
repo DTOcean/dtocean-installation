@@ -32,7 +32,7 @@ install:
   - conda create -n _dtocean_install python=%PYTHON_VERSION% pip
   - activate _dtocean_install
   - copy .condarc %CONDA_PREFIX%
-  - conda install polite>=0.9 dtocean-logistics>=2.0.0
+  - conda install polite>=0.9 "dtocean-logistics>=3,<4"
   - conda install --file requirements-conda-dev.txt
   - pip install -e .
   - conda install pytest pytest-cov=2.5.1
