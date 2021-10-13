@@ -8,7 +8,7 @@
 #---------------------------------#
 
 # version format
-version: 2.0.1.dev1.build{build}
+version: 2.0.1.build{build}
 
 environment:
   matrix:
