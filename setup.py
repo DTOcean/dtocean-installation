@@ -97,6 +97,7 @@ setup(name='dtocean-installation',
         package_data={'dtocean_installation': ['config/*.yaml',
                                                'config/*.xlsx']
                     },
+      setup_requires=['pyyaml'],
       install_requires=[
           'dtocean-logistics>=3,<4',
           'numpy',
